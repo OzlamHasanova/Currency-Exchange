@@ -21,12 +21,11 @@ public class ExchangeRateService {
 
     private final CurrencyRepository currencyRepository;
     private final ExchangeRateRepository exchangeRateRepository;
-    private final CbarXmlParser cbarXmlParser;
 
 
     public void importFromXml(InputStream xmlStream) {
         try {
-            ValCurs valCurs = cbarXmlParser.parseXml(xmlStream);
+            ValCurs valCurs = new CbarXmlParser().parseXml(xmlStream);
             LocalDate rateDate = LocalDate.parse(valCurs.getDate(), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
 
             for (ValType valType : valCurs.getValTypes()) {
