@@ -1,54 +1,45 @@
 package az.digirella.currencyexchange.config;
 
+import az.digirella.currencyexchange.service.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter staticTokenFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable() // CSRF hücumlarına qarşı qorumağı deaktiv edin (isteğe bağlı)
-                .authorizeRequests()
-                .requestMatchers("/api/exchange-rates/**").hasRole("USER") // Müəyyən API-lərə daxil olmaq üçün istifadəçi icazəsi
-                .anyRequest().authenticated() // Qalan bütün tələblər üçün istifadəçi doğrulaması tələb edilir
-                .and()
-                .formLogin().disable() // Forma ilə login deaktivdir, yalnız token əsaslı autentifikasiya istifadə olunur
-                .httpBasic().disable(); // Basic Auth deaktivdir, yalnız JWT istifadə olunur
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(staticTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .httpBasic(Customizer.withDefaults())
+                .formLogin(AbstractHttpConfigurer::disable);
+
         return http.build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(userDetailsService())
-                .passwordEncoder(passwordEncoder())
-                .and()
-                .build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public UserDetailsService userDetailsService() {
-        return username -> User.builder()
-                .username("user")
-                .password(passwordEncoder().encode("password")) // Bu nöqtədə, istifadəçinin parolası şifrələnəcək
-                .roles("USER")
-                .build();
+        return username -> new User(username, "", List.of());
     }
+
+
 }
