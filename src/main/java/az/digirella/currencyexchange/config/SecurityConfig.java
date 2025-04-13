@@ -4,6 +4,7 @@ import az.digirella.currencyexchange.service.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,23 +15,40 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.List;
-
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter staticTokenFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
+    // Token ilə qorunan endpointlər üçün
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain tokenProtectedEndpoints(HttpSecurity http) throws Exception {
         http
+                .securityMatcher("/api/exchange-rates/**")
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(staticTokenFilter, UsernamePasswordAuthenticationFilter.class)
-                .httpBasic(Customizer.withDefaults())
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable);
+
+        return http.build();
+    }
+
+    // Basic Auth ilə qorunan endpointlər üçün
+    @Bean
+    @Order(2)
+    public SecurityFilterChain basicAuthEndpoints(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/api/exchange-azn/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .httpBasic(Customizer.withDefaults()) // Basic Auth burda aktivdi
                 .formLogin(AbstractHttpConfigurer::disable);
 
         return http.build();
@@ -38,8 +56,13 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> new User("user", "{noop}$$$$", List.of());
+        return username -> {
+            // İstəyə uyğun olaraq password əlavə edə bilərsən (hazırda boş string)
+            return new org.springframework.security.core.userdetails.User(
+                    "ozlem",
+                    "{noop}password", // No encoding (yalnız test üçündür)
+                    List.of()
+            );
+        };
     }
-
-
 }
