@@ -1,7 +1,7 @@
 CURRENCY EXCHANGE API
 
 Project Description
-The Currency Exchange API provides an interface for retrieving, storing, and managing official exchange rates of the Azerbaijani Manat (AZN) against foreign currencies and precious metals. This project fetches exchange rate data from the Central Bank of Azerbaijan (CBA) and allows users to view exchange rates for specific dates, as well as manage the data in the system.
+The Currency Exchange API provides an interface for retrieving, storing, and managing official exchange rates of the Azerbaijani Manat (AZN) against foreign currencies. This project fetches exchange rate data from the Central Bank of Azerbaijan (CBA) and allows users to view exchange rates for specific dates, as well as manage the data in the system.
 
 Features
 
