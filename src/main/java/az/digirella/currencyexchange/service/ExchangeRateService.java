@@ -22,29 +22,30 @@ public class ExchangeRateService {
     private final CurrencyRepository currencyRepository;
     private final ExchangeRateRepository exchangeRateRepository;
 
-    // XML faylından məlumatları import edir
     public void importFromXml(InputStream xmlStream) {
         try {
             ValCurs valCurs = new CbarXmlParser().parseXml(xmlStream);
             LocalDate rateDate = LocalDate.parse(valCurs.getDate(), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
 
             for (ValType valType : valCurs.getValTypes()) {
-                for (Valute valute : valType.getValutes()) {
-                    Currency currency = currencyRepository.findByCode(valute.getCode())
-                            .orElseGet(() -> {
-                                Currency newCurrency = new Currency();
-                                newCurrency.setCode(valute.getCode());
-                                newCurrency.setName(valute.getName());
-                                return currencyRepository.save(newCurrency);
-                            });
+                if ("Xarici valyutalar".equals(valType.getType())) {
+                    for (Valute valute : valType.getValutes()) {
+                        Currency currency = currencyRepository.findByCode(valute.getCode())
+                                .orElseGet(() -> {
+                                    Currency newCurrency = new Currency();
+                                    newCurrency.setCode(valute.getCode());
+                                    newCurrency.setName(valute.getName());
+                                    return currencyRepository.save(newCurrency);
+                                });
 
-                    ExchangeRate rate = new ExchangeRate();
-                    rate.setCurrency(currency);
-                    rate.setValue(valute.getValue());
-                    rate.setDate(rateDate);
-                    rate.setNominal(valute.getNominal());
-                    if (!exchangeRateRepository.existsByCurrencyAndDate(currency, rateDate)) {
-                        exchangeRateRepository.save(rate);
+                        ExchangeRate rate = new ExchangeRate();
+                        rate.setCurrency(currency);
+                        rate.setValue(valute.getValue());
+                        rate.setDate(rateDate);
+                        rate.setNominal(valute.getNominal());
+                        if (!exchangeRateRepository.existsByCurrencyAndDate(currency, rateDate)) {
+                            exchangeRateRepository.save(rate);
+                        }
                     }
                 }
             }
@@ -53,7 +54,6 @@ public class ExchangeRateService {
         }
     }
 
-    // Tarixə əsaslanaraq məzənnələri yükləyir
     public String importByDate(LocalDate date) {
         boolean exists = exchangeRateRepository.existsByDate(date);
         if (exists) {

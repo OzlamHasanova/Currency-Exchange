@@ -18,7 +18,8 @@ public class ExchangeRateController {
     private final ExchangeRateService exchangeRateService;
 
     @PostMapping("/import")
-    public ResponseEntity<String> importRates(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    public ResponseEntity<String> importRates(@RequestParam("date")
+                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         String result = exchangeRateService.importByDate(date);
         return ResponseEntity.ok(result);
     }

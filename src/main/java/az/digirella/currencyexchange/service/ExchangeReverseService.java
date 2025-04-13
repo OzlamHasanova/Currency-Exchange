@@ -27,9 +27,9 @@ public class ExchangeReverseService {
                 .orElseThrow(() -> new RuntimeException("Valyuta kodu və ya tarixə görə məzənnə tapılmadı"));
 
         BigDecimal value = rate.getValue();
-        int nominal = Integer.parseInt(rate.getNominal());
 
-        BigDecimal reverseRate = BigDecimal.ONE.divide(value, 6, RoundingMode.HALF_UP);
+        BigDecimal reverseRate = BigDecimal.valueOf(Long.parseLong(rate.getNominal())).divide(value,
+                6, RoundingMode.HALF_UP);
 
         return new ExchangeRateResponse(
                 rate.getCurrency().getCode(),
@@ -44,7 +44,7 @@ public class ExchangeReverseService {
 
         return exchangeRates.stream()
                 .map(rate -> {
-                    BigDecimal oneUnitRate = rate.getValue().divide(BigDecimal.valueOf(1), 6, RoundingMode.HALF_UP);
+                    BigDecimal oneUnitRate = rate.getValue().divide(BigDecimal.valueOf(Long.parseLong(rate.getNominal())), 6, RoundingMode.HALF_UP);
                     BigDecimal reverseRate = BigDecimal.ONE.divide(oneUnitRate, 6, RoundingMode.HALF_UP);
                     return new ReverseAllCurrencyResponse(rate.getCurrency().getCode(), reverseRate);
                 })
@@ -56,7 +56,7 @@ public class ExchangeReverseService {
 
         return exchangeRates.stream()
                 .map(rate -> {
-                    BigDecimal oneUnitRate = rate.getValue().divide(BigDecimal.valueOf(1), 6, RoundingMode.HALF_UP);
+                    BigDecimal oneUnitRate = rate.getValue().divide(BigDecimal.valueOf(Long.parseLong(rate.getNominal())), 6, RoundingMode.HALF_UP);
                     BigDecimal reverseRate = BigDecimal.ONE.divide(oneUnitRate, 6, RoundingMode.HALF_UP);
                     return new ReverseCurrencyByAllDatesResponse(rate.getDate(), reverseRate);
                 })
