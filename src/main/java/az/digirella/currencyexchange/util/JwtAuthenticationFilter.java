@@ -1,4 +1,4 @@
-package az.digirella.currencyexchange.service;
+package az.digirella.currencyexchange.util;
 
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;

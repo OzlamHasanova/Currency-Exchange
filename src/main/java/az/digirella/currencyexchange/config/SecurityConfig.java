@@ -1,6 +1,6 @@
 package az.digirella.currencyexchange.config;
 
-import az.digirella.currencyexchange.service.JwtAuthenticationFilter;
+import az.digirella.currencyexchange.util.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
