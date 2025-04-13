@@ -2,8 +2,8 @@ package az.digirella.currencyexchange.service;
 
 import az.digirella.currencyexchange.dto.ExchangeRateResponse;
 import az.digirella.currencyexchange.dto.ReverseAllCurrencyResponse;
+import az.digirella.currencyexchange.dto.ReverseCurrencyByAllDatesResponse;
 import az.digirella.currencyexchange.entity.ExchangeRate;
-import az.digirella.currencyexchange.entity.Valute;
 import az.digirella.currencyexchange.repository.CurrencyRepository;
 import az.digirella.currencyexchange.repository.ExchangeRateRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,5 +50,18 @@ public class ExchangeReverseService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public List<ReverseCurrencyByAllDatesResponse> getReverseRatesForCurrencyOverAllDates(String currencyCode) {
+        List<ExchangeRate> exchangeRates = exchangeRateRepository.findAllByCurrencyCode(currencyCode);
+
+        return exchangeRates.stream()
+                .map(rate -> {
+                    BigDecimal oneUnitRate = rate.getValue().divide(BigDecimal.valueOf(1), 6, RoundingMode.HALF_UP);
+                    BigDecimal reverseRate = BigDecimal.ONE.divide(oneUnitRate, 6, RoundingMode.HALF_UP);
+                    return new ReverseCurrencyByAllDatesResponse(rate.getDate(), reverseRate);
+                })
+                .collect(Collectors.toList());
+    }
+
 
 }

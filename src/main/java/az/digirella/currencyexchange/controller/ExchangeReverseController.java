@@ -2,6 +2,7 @@ package az.digirella.currencyexchange.controller;
 
 import az.digirella.currencyexchange.dto.ExchangeRateResponse;
 import az.digirella.currencyexchange.dto.ReverseAllCurrencyResponse;
+import az.digirella.currencyexchange.dto.ReverseCurrencyByAllDatesResponse;
 import az.digirella.currencyexchange.service.ExchangeReverseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -38,6 +39,14 @@ public class ExchangeReverseController {
     public ResponseEntity<List<ReverseAllCurrencyResponse>> getAllReverseRates(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<ReverseAllCurrencyResponse> reverseRates = exchangeReverseService.getAllReverseRatesByDate(date);
+        return ResponseEntity.ok(reverseRates);
+    }
+
+    @GetMapping("/reverse-rates/by-currency")
+    public ResponseEntity<List<ReverseCurrencyByAllDatesResponse>> getReverseRatesForCurrency(
+            @RequestParam String currencyCode) {
+        List<ReverseCurrencyByAllDatesResponse> reverseRates = exchangeReverseService
+                .getReverseRatesForCurrencyOverAllDates(currencyCode);
         return ResponseEntity.ok(reverseRates);
     }
 

@@ -19,4 +19,6 @@ public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Long
     long deleteByDate(LocalDate date);
 
     Optional<ExchangeRate> findByCurrencyCodeAndDate(String currency, LocalDate date);
+
+    List<ExchangeRate> findAllByCurrencyCode(String currencyCode);
 }

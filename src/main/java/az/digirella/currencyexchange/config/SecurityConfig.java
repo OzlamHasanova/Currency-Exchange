@@ -38,7 +38,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> new User(username, "", List.of());
+        return username -> new User("user", "{noop}$$$$", List.of());
     }
 
 
